@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>The Construct - Mastering Docker (Django)</title>
+</head>
+
+<body>
+    <center><img src="static/app/img/TheConstruct.png" width="300px" /></center>
+    <form action="" method="post">
+        {% csrf_token %}
+        <fieldset>
+            <legend>
+                <h1>Waiting list</h1>
+            </legend>
+            {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+            <input type="text" size="22" name="first_name" id="first_name" placeholder="Add your name to the list">
+            <input type="submit" value="Add">
+        </fieldset>
+
+    </form>
+
+    {% if users %}
+    <ul>
+        {% for user in users %}
+        <li>
+            <form action="" method="post">
+                {% csrf_token %}
+                <b>{{user.date_joined}} -- {{user.first_name}}</b>
+                <input type="hidden" name="user_id" id="user_id" value="{{user.id}}">
+                <input type="submit" value="Delete">
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>Waiting list is empty.</p>
+    {% endif %}
+
+</body>
+
+</html>

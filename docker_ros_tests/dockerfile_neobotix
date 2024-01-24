@@ -1,0 +1,23 @@
+FROM nvidia_ros2:latest
+
+# Change the default shell to Bash
+SHELL [ "/bin/bash" , "-c" ]
+
+# Install Git
+RUN apt update && apt install -y git && apt install -y python3-colcon-common-extensions
+
+# Create a Colcon workspace and clone Neobotix repos
+RUN source /opt/ros/humble/setup.bash \
+ && mkdir -p /neobotix_ws/src \
+ && cd /neobotix_ws/src \
+ && git clone -b docker https://bitbucket.org/theconstructcore/neobotix_ros2.git
+RUN echo "export GAZEBO_MODEL_PATH=/neobotix_ws/src/neobotix_ros2/neo_simulation2/models:/neobotix_ws/src:/neobotix_ws/src/neobotix_ros2" >> ~/.bashrc
+
+# Build the Colcon workspace and ensure it's sourced
+RUN source /opt/ros/humble/setup.bash \
+ && cd /neobotix_ws \
+ && colcon build
+RUN echo "source /neobotix_ws/install/setup.bash" >> ~/.bashrc
+
+# Set the working folder at startup
+WORKDIR /neobotix_ws

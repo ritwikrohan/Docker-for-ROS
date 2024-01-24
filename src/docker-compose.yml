@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx_container
+    hostname: nginx_container
+    restart: always
+    volumes:
+      - ~/catkin_ws/src/my_webpage:/usr/share/nginx/html:ro
+      - logs:/var/log/nginx
+      - ~/no-file.txt:/no-file.txt
+    ports:
+      - "7000:80"
+
+volumes:
+  logs: {}

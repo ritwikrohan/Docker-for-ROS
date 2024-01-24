@@ -1,0 +1,60 @@
+version: "3.7"
+services:
+  mysql_db:
+    image: mysql:8.0.19
+    hostname: mysql_container
+    command: '--default-authentication-plugin=mysql_native_password'
+    restart: always
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=django_db
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db-password
+    networks:
+      - mysql_net
+
+  django_backend:
+    build: ./django
+    hostname: django_container
+    secrets:
+      - db-password
+    depends_on:
+      - mysql_db
+    environment:
+      - PYTHONUNBUFFERED=1  # https://stackoverflow.com/a/67298558/6490637
+    command:
+      - /django_code/entrypoint.sh
+    volumes:
+      - ./django/project/settings.py:/django_code/project/settings.py
+      - ./django/entrypoint.sh:/django_code/entrypoint.sh
+      - django-static:/django_code/static/
+    networks:
+      - mysql_net
+      - django_net
+
+  nginx_proxy:
+    build: ./nginx
+    hostname: nginx_container
+    ports:
+      - "7000:80"
+    volumes:
+      - django-static:/django_staticfiles/
+    depends_on:
+      - django_backend
+    networks:
+      - django_net
+
+volumes:
+  db-data:
+  django-static:
+
+networks:
+  mysql_net:
+  django_net:
+
+secrets:
+  db-password:
+    file: db/password.txt
+

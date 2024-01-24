@@ -1,0 +1,15 @@
+FROM neobotix_base:latest
+
+# Install catkin tools
+#RUN apt-get update && apt-get install -y python3-catkin-tools
+
+# Create an overlay Catkin workspace
+RUN source /opt/ros/humble/setup.bash \
+ && mkdir -p /overlay_ws/src \
+ && cd /overlay_ws
+COPY ./shared_folder/ /overlay_ws/src/shared_folder/
+RUN cd /overlay_ws \
+ && colcon build
+
+# Set up the work directory and entrypoint
+WORKDIR /overlay_ws
